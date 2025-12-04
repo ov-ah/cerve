@@ -218,5 +218,5 @@ char *getFileType(char *path)
 	{
     	return "image/x-icon";
 	}
-    return NULL;
+    return "application/octet-stream";
 }
