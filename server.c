@@ -214,5 +214,9 @@ char *getFileType(char *path)
     {
         return "application/pdf";
     }
+	if (strstr(path, ".ico"))
+	{
+    	return "image/x-icon";
+	}
     return NULL;
 }
