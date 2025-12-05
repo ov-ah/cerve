@@ -105,7 +105,7 @@ void handleClient(int clientfd)
 
     if (path == NULL || strcmp(path, "/") == 0)
     {
-        path = "/index.html";
+        strcpy(path, "/index.html");
     }
 
     sendFile(clientfd, path);
