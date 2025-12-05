@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
 
     serverfd = socket(AF_INET, SOCK_STREAM, 0);
 	
-	int opt = 1;
-	setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    int opt = 1;	
+    setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     if (serverfd < 0)
     {
@@ -112,7 +112,7 @@ void handleClient(int clientfd)
         printf("Unsupported Method\n");
 
         char response[10000];
-        sprintf(response, "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>405 Method Not Allowed</h1></body></html>");
+        sprintf(response, "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/html\r\nConnection: close\r\n\r\"<html><body><h1>405 Method Not Allowed</h1></body></html>");
         write(clientfd, response, strlen(response));
         close(clientfd);
         return;
@@ -137,20 +137,20 @@ void sendFile(int clientfd, char *path)
 
     if (filePath == NULL)
     {
-        // filePath = fopen("404.html", "r");
-
+        filePath = fopen("www/404.html", "rb");
+		
         if (filePath == NULL)
         {
             sprintf(response,
                     "HTTP/1.1 404 Not Found\r\n"
                     "Content-Type: text/html\r\n"
                     "Connection: close\r\n\r\n"
-                    "<html><body>h1>404 Not Found</h1></body></html>");
+                    "<html><body><h1>404 Not Found</h1></body></html>");
 
             write(clientfd, response, strlen(response));
 			printf("Server response %s\n", response);
-    		close(clientfd);
-    		return;
+			close(clientfd);
+			return;
         }
         else
         {
@@ -165,8 +165,12 @@ void sendFile(int clientfd, char *path)
             {
                 write(clientfd, file_buffer, strlen(file_buffer));
             }
+
+			fclose(filePath);
+			close(clientfd);
+			return;
         }
-    }
+	}
     else
     {
         fileType = getFileType(path);
