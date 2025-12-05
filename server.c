@@ -118,7 +118,7 @@ void sendFile(int clientfd, char *path)
     char file_buffer[10000];
     char response[10000];
 
-    filePath = fopen(path + 1, "r");
+    filePath = fopen(path + 1, "rb");
 
     if (filePath == NULL)
     {
@@ -130,9 +130,12 @@ void sendFile(int clientfd, char *path)
                     "HTTP/1.1 404 Not Found\r\n"
                     "Content-Type: text/html\r\n"
                     "Connection: close\r\n\r\n"
-                    "<html><body><h1>404 Not Found</h1></body></html>");
+                    "<html><body>h1>404 Not Found</h1></body></html>");
 
             write(clientfd, response, strlen(response));
+			printf("Server response %s\n", response);
+    		close(clientfd);
+    		return;
         }
         else
         {
