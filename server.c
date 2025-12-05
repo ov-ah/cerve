@@ -31,7 +31,7 @@ int main()
         exit(1);
     }
 	
-    system("xdg-open http://localhost:8080")
+    system("xdg-open http://localhost:8080");
     
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_addr.s_addr = INADDR_ANY;
