@@ -30,9 +30,9 @@ int main()
         printf("Socket creation failed\n");
         exit(1);
     }
-
-    system("xdg-open http://localhost:8080");
-
+	
+    system("xdg-open http://localhost:8080")
+    
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_addr.s_addr = INADDR_ANY;
     serveraddr.sin_port = htons(PORT);
