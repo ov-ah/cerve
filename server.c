@@ -21,6 +21,9 @@ int main()
     socklen_t clientfdLength = sizeof(clientaddr);
 
     serverfd = socket(AF_INET, SOCK_STREAM, 0);
+	
+	int opt = 1;
+	setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     if (serverfd < 0)
     {
