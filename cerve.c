@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
+#include <stdbool.h>
 
 #define PORT 8080
 
@@ -12,8 +13,16 @@ void handleClient(int clientfd);
 void sendFile(int clientfd, char *file);
 char *getFileType(char *path);
 
-int main()
+int main(int argc, char *argv[])
 {
+    bool autoOpenBrowser = true;
+
+    for (int i = 1; i < argc; i++) {
+	if (strcmp(argv[i], "--nobrowser") == 0 || strcmp(argv[i], "-n") == 0) {
+	    autoOpenBrowser = false;
+	}
+    }
+
     printf("Server running at: http://localhost:%d/\n", PORT);
 
     int serverfd, clientfd;
@@ -30,9 +39,10 @@ int main()
         printf("Socket creation failed\n");
         exit(1);
     }
-	
-    system("xdg-open http://localhost:8080");
-    
+
+    if (autoOpenBrowser) {	
+        system("xdg-open http://localhost:8080");
+    }
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_addr.s_addr = INADDR_ANY;
     serveraddr.sin_port = htons(PORT);
