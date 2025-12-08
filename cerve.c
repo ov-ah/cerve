@@ -8,8 +8,6 @@
 #include <stdbool.h>
 
 #define PORT 8080
-#define WEBROOT "www/"
-#define NOTFOUND_PAGE "404.html"
 
 void handleClient(int clientfd);
 void sendFile(int clientfd, char *file);
@@ -141,9 +139,7 @@ void sendFile(int clientfd, char *path)
 
     if (filePath == NULL)
     {
-		char notfound[1024];
-		snprintf(notfound, sizeof(notfound), "%s%s", WEBROOT, NOTFOUND_PAGE);
-        FILE *fp404 = fopen(notfound, "rb");
+		filePath = fopen("/usr/local/share/cerve/404.html", "rb");
 
         if (filePath == NULL)
         {
