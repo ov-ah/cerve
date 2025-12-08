@@ -8,6 +8,8 @@
 #include <stdbool.h>
 
 #define PORT 8080
+#define WEBROOT "www/"
+#define NOTFOUND_PAGE "404.html"
 
 void handleClient(int clientfd);
 void sendFile(int clientfd, char *file);
@@ -18,9 +20,10 @@ int main(int argc, char *argv[])
     bool autoOpenBrowser = true;
 
     for (int i = 1; i < argc; i++) {
-	if (strcmp(argv[i], "--nobrowser") == 0 || strcmp(argv[i], "-n") == 0) {
-	    autoOpenBrowser = false;
-	}
+		if (strcmp(argv[i], "--nobrowser") == 0 || strcmp(argv[i], "-n") == 0)
+	   	{
+	    	autoOpenBrowser = false;
+		}
     }
 
     printf("Server running at: http://localhost:%d/\n", PORT);
@@ -132,13 +135,16 @@ void sendFile(int clientfd, char *path)
     char *fileType;
     char file_buffer[10000];
     char response[10000];
-
+	
+	printf("Requested path: %s\n", path + 1); //Debug suggit
     filePath = fopen(path + 1, "rb");
 
     if (filePath == NULL)
     {
-        filePath = fopen("www/404.html", "rb");
-		
+		char notfound[1024];
+		snprintf(notfound, sizeof(notfound), "%s%s", WEBROOT, NOTFOUND_PAGE);
+        FILE *fp404 = fopen(notfound, "rb");
+
         if (filePath == NULL)
         {
             sprintf(response,
@@ -160,11 +166,12 @@ void sendFile(int clientfd, char *path)
                     "Connection: close\r\n\r\n");
 
             write(clientfd, response, strlen(response));
-
-            while (fgets(file_buffer, sizeof(file_buffer), filePath) != NULL)
-            {
-                write(clientfd, file_buffer, strlen(file_buffer));
-            }
+			
+            size_t bytes;
+			while ((bytes = fread(file_buffer, 1, sizeof(file_buffer), filePath)) > 0)
+			{
+				write(clientfd, file_buffer, bytes);
+			}
 
 			fclose(filePath);
 			close(clientfd);
