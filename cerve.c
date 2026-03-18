@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     bool autoOpenBrowser = true;
 
     for (int i = 1; i < argc; i++) {
-	if (strcmp(argv[i], "--nobrowser") == 0 || strcmp(argv[i], "-n") == 0) {
-	    autoOpenBrowser = false;
-	}
+	    if (strcmp(argv[i], "--nobrowser") == 0 || strcmp(argv[i], "-n") == 0) {
+	        autoOpenBrowser = false;
+	    }
     }
 
     printf("Server running at: http://localhost:%d/\n", PORT);
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     socklen_t clientfdLength = sizeof(clientaddr);
 
     serverfd = socket(AF_INET, SOCK_STREAM, 0);
-	
+
 	int opt = 1;
 	setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
@@ -40,9 +40,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if (autoOpenBrowser) {	
-        system("xdg-open http://localhost:8080");
+    if (autoOpenBrowser) {
+        char xdgCommand[64];
+        snprintf(xdgCommand, sizeof(xdgCommand), "xdg-open http://localhost:%d/", PORT);
+        system(xdgCommand);
     }
+
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_addr.s_addr = INADDR_ANY;
     serveraddr.sin_port = htons(PORT);
@@ -120,7 +123,7 @@ void handleClient(int clientfd)
 
     if (path == NULL || strcmp(path, "/") == 0)
     {
-        strcpy(path, "/index.html");
+        strcpy(path, "/www/index.html");
     }
 
     sendFile(clientfd, path);
