@@ -1,5 +1,5 @@
 simple webserver written in c
 
-ONLY FOR TESTING!
-
-cerve is under development and is only slightly usable. in its current state cerve is only intended for personal use and testing.
+Important Note1b
+cerve is a small personal project and although it is function as a localwebserver for testing and hosting your content locally it is not feature rich.
+it is not recomended to use cerve for anything other than local testing.
