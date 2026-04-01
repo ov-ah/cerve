@@ -127,6 +127,15 @@ void handleClient(int clientfd)
         strcpy(path, "/www/index.html");
     }
 
+    // TODO address URL encoding and edge cases for this exploit
+    if (strstr(path, "..") != NULL)
+    {
+        char *forbidden = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>403 Forbidden</h1></body></html>";
+        write(clientfd, forbidden, strlen(forbidden));
+        close(clientfd);
+        return;
+    }
+
     char root[PATH_MAX];
     realpath("www", root);
 
