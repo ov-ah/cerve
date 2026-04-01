@@ -179,7 +179,7 @@ void sendFile(int clientfd, char *path)
 
     if (filePath == NULL)
     {
-        // filePath = fopen("404.html", "r");
+        // TODO filePath = fopen("404.html", "r");
 
         if (filePath == NULL)
         {
@@ -226,6 +226,8 @@ void sendFile(int clientfd, char *path)
 
         write(clientfd, response, strlen(response));
 
+        // TODO proper write loop
+
         size_t bytes;
         while ((bytes = fread(file_buffer, 1, sizeof(file_buffer), filePath)) > 0)
         {
@@ -242,41 +244,19 @@ void sendFile(int clientfd, char *path)
 
 char *getFileType(char *path)
 {
-    if (strstr(path, ".html"))
-    {
-        return "text/html";
-    }
-    if (strstr(path, ".css"))
-    {
-        return "text/css";
-    }
-    if (strstr(path, ".js"))
-    {
-        return "application/javascript";
-    }
-    if (strstr(path, ".jpg") || strstr(path, ".jpeg"))
-    {
-        return "image/jpeg";
-    }
-    if (strstr(path, ".png"))
-    {
-        return "image/png";
-    }
-    if (strstr(path, ".mp4"))
-    {
-        return "video/mp4";
-    }
-    if (strstr(path, ".mp3"))
-    {
-        return "audio/mp3";
-    }
-    if (strstr(path, ".pdf"))
-    {
-        return "application/pdf";
-    }
-	if (strstr(path, ".ico"))
-	{
-    	return "image/x-icon";
-	}
+    char *ext = strrchr(path, '.');
+    if (ext == NULL) return "application/octet-stream";
+
+    if (strcmp(ext, ".html") == 0) return "text/html";
+    if (strcmp(ext, ".css")  == 0) return "text/css";
+    if (strcmp(ext, ".js")   == 0) return "application/javascript";
+    if (strcmp(ext, ".jpg")  == 0) return "image/jpeg";
+    if (strcmp(ext, ".jpeg") == 0) return "image/jpeg";
+    if (strcmp(ext, ".png")  == 0) return "image/png";
+    if (strcmp(ext, ".mp4")  == 0) return "video/mp4";
+    if (strcmp(ext, ".mp3")  == 0) return "audio/mp3";
+    if (strcmp(ext, ".pdf")  == 0) return "application/pdf";
+    if (strcmp(ext, ".ico")  == 0) return "image/x-icon";
+
     return "application/octet-stream";
 }
