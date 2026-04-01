@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #define PORT 8080
 
@@ -124,6 +125,27 @@ void handleClient(int clientfd)
     if (path == NULL || strcmp(path, "/") == 0)
     {
         strcpy(path, "/www/index.html");
+    }
+
+    char root[PATH_MAX];
+    realpath("www", root);
+
+    char full[PATH_MAX];
+    snprintf(full, sizeof(full), "www%s", path);
+
+    char resolved[PATH_MAX];
+    if (realpath(full, resolved) == NULL)
+    {
+        sendFile(clientfd, path);
+        return;
+    }
+
+    if (strncmp(resolved, root, strlen(root)) != 0)
+    {
+        char *forbidden = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>403 Forbidden</h1></body></html>";
+        write(clientfd, forbidden, strlen(forbidden));
+        close(clientfd);
+        return;
     }
 
     sendFile(clientfd, path);
