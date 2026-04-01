@@ -183,7 +183,7 @@ void sendFile(int clientfd, char *path)
 
         if (filePath == NULL)
         {
-            sprintf(response,
+            snprintf(response,
                     "HTTP/1.1 404 Not Found\r\n"
                     "Content-Type: text/html\r\n"
                     "Connection: close\r\n\r\n"
@@ -196,7 +196,7 @@ void sendFile(int clientfd, char *path)
         }
         else
         {
-            sprintf(response,
+            snprintf(response,
                     "HTTP/1.1 404 Not Found\r\n"
                     "Content-Type: text/html\r\n"
                     "Connection: close\r\n\r\n");
@@ -218,7 +218,7 @@ void sendFile(int clientfd, char *path)
             fileType = "application/octet-stream";
         }
 
-        sprintf(response,
+        snprintf(response,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: %s\r\n"
                 "Connection: close\r\n\r\n",
