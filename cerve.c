@@ -9,6 +9,8 @@
 #include <limits.h>
 
 #define PORT 8080
+#define FILE_CHUNK_SIZE (64 * 1024)
+#define REQUEST_BUFFER_SIZE (8 * 1024)
 
 void handleClient(int clientfd);
 void sendFile(int clientfd, char *file);
@@ -91,7 +93,7 @@ int main(int argc, char *argv[])
 void handleClient(int clientfd)
 {
     char *method, *path, *protocol;
-    char request[10000];
+    char request[REQUEST_BUFFER_SIZE];
 
     ssize_t bytesRead = read(clientfd, request, sizeof(request));
 
@@ -115,16 +117,21 @@ void handleClient(int clientfd)
     {
         printf("Unsupported Method\n");
 
-        char response[10000];
+        char response[PATH_MAX];
         sprintf(response, "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>405 Method Not Allowed</h1></body></html>");
         write(clientfd, response, strlen(response));
         close(clientfd);
         return;
     }
 
+    char resolved_path[PATH_MAX];
     if (path == NULL || strcmp(path, "/") == 0)
     {
-        strcpy(path, "/www/index.html");
+        strncpy(resolved_path, "/index.html", sizeof(resolved_path));
+    }
+    else
+    {
+        strncpy(resolved_path, path, sizeof(resolved_path));
     }
 
     // TODO address URL encoding and edge cases for this exploit
@@ -140,7 +147,7 @@ void handleClient(int clientfd)
     realpath("www", root);
 
     char full[PATH_MAX];
-    snprintf(full, sizeof(full), "www%s", path);
+    snprintf(full, sizeof(full), "www%s", resolved_path);
 
     char resolved[PATH_MAX];
     if (realpath(full, resolved) == NULL)
@@ -157,17 +164,17 @@ void handleClient(int clientfd)
         return;
     }
 
-    sendFile(clientfd, path);
+    sendFile(clientfd, resolved);
 }
 
 void sendFile(int clientfd, char *path)
 {
     FILE *filePath;
     char *fileType;
-    char file_buffer[10000];
-    char response[10000];
+    char file_buffer[FILE_CHUNK_SIZE];
+    char response[4096];
 
-    filePath = fopen(path + 1, "rb");
+    filePath = fopen(path, "rb");
 
     if (filePath == NULL)
     {
@@ -179,7 +186,7 @@ void sendFile(int clientfd, char *path)
                     "HTTP/1.1 404 Not Found\r\n"
                     "Content-Type: text/html\r\n"
                     "Connection: close\r\n\r\n"
-                    "<html><body>h1>404 Not Found</h1></body></html>");
+                    "<html><body><h1>404 Not Found</h1></body></html>");
 
             write(clientfd, response, strlen(response));
 			printf("Server response %s\n", response);
