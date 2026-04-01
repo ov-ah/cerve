@@ -35,13 +35,14 @@ int main(int argc, char *argv[])
     serverfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	int opt = 1;
-	setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     if (serverfd < 0)
     {
         printf("Socket creation failed\n");
         exit(1);
     }
+
+    setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     if (autoOpenBrowser) {
         char xdgCommand[64];
