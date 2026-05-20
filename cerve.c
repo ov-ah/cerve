@@ -15,15 +15,22 @@
 void handleClient(int clientfd);
 void sendFile(int clientfd, char *file);
 char *getFileType(char *path);
+char serve_root[PATH_MAX] = "www";
 
 int main(int argc, char *argv[])
 {
     bool autoOpenBrowser = true;
 
-    for (int i = 1; i < argc; i++) {
-	    if (strcmp(argv[i], "--nobrowser") == 0 || strcmp(argv[i], "-n") == 0) {
-	        autoOpenBrowser = false;
-	    }
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--nobrowser") == 0 || strcmp(argv[i], "-n") == 0)
+        {
+            autoOpenBrowser = false;
+        }
+        else
+        {
+            strncpy(serve_root, argv[i], sizeof(serve_root));
+        }
     }
 
     printf("Server running at: http://localhost:%d/\n", PORT);
@@ -34,7 +41,7 @@ int main(int argc, char *argv[])
 
     serverfd = socket(AF_INET, SOCK_STREAM, 0);
 
-	int opt = 1;
+    int opt = 1;
 
     if (serverfd < 0)
     {
@@ -44,7 +51,8 @@ int main(int argc, char *argv[])
 
     setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    if (autoOpenBrowser) {
+    if (autoOpenBrowser)
+    {
         char xdgCommand[64];
         snprintf(xdgCommand, sizeof(xdgCommand), "xdg-open http://localhost:%d/", PORT);
         system(xdgCommand);
@@ -145,10 +153,10 @@ void handleClient(int clientfd)
     }
 
     char root[PATH_MAX];
-    realpath("www", root);
+    realpath(serve_root, root);
 
     char full[PATH_MAX];
-    snprintf(full, sizeof(full), "www%s", resolved_path);
+    snprintf(full, sizeof(full), "%s%s", serve_root, resolved_path);
 
     char resolved[PATH_MAX];
     if (realpath(full, resolved) == NULL)
@@ -184,22 +192,22 @@ void sendFile(int clientfd, char *path)
         if (filePath == NULL)
         {
             snprintf(response, sizeof(response),
-                    "HTTP/1.1 404 Not Found\r\n"
-                    "Content-Type: text/html\r\n"
-                    "Connection: close\r\n\r\n"
-                    "<html><body><h1>404 Not Found</h1></body></html>");
+                     "HTTP/1.1 404 Not Found\r\n"
+                     "Content-Type: text/html\r\n"
+                     "Connection: close\r\n\r\n"
+                     "<html><body><h1>404 Not Found</h1></body></html>");
 
             write(clientfd, response, strlen(response));
-			printf("Server response %s\n", response);
-    		close(clientfd);
-    		return;
+            printf("Server response %s\n", response);
+            close(clientfd);
+            return;
         }
         else
         {
             snprintf(response, sizeof(response),
-                    "HTTP/1.1 404 Not Found\r\n"
-                    "Content-Type: text/html\r\n"
-                    "Connection: close\r\n\r\n");
+                     "HTTP/1.1 404 Not Found\r\n"
+                     "Content-Type: text/html\r\n"
+                     "Connection: close\r\n\r\n");
 
             write(clientfd, response, strlen(response));
 
@@ -219,10 +227,10 @@ void sendFile(int clientfd, char *path)
         }
 
         snprintf(response, sizeof(response),
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Type: %s\r\n"
-                "Connection: close\r\n\r\n",
-                fileType);
+                 "HTTP/1.1 200 OK\r\n"
+                 "Content-Type: %s\r\n"
+                 "Connection: close\r\n\r\n",
+                 fileType);
 
         write(clientfd, response, strlen(response));
 
@@ -245,18 +253,29 @@ void sendFile(int clientfd, char *path)
 char *getFileType(char *path)
 {
     char *ext = strrchr(path, '.');
-    if (ext == NULL) return "application/octet-stream";
+    if (ext == NULL)
+        return "application/octet-stream";
 
-    if (strcmp(ext, ".html") == 0) return "text/html";
-    if (strcmp(ext, ".css")  == 0) return "text/css";
-    if (strcmp(ext, ".js")   == 0) return "application/javascript";
-    if (strcmp(ext, ".jpg")  == 0) return "image/jpeg";
-    if (strcmp(ext, ".jpeg") == 0) return "image/jpeg";
-    if (strcmp(ext, ".png")  == 0) return "image/png";
-    if (strcmp(ext, ".mp4")  == 0) return "video/mp4";
-    if (strcmp(ext, ".mp3")  == 0) return "audio/mp3";
-    if (strcmp(ext, ".pdf")  == 0) return "application/pdf";
-    if (strcmp(ext, ".ico")  == 0) return "image/x-icon";
+    if (strcmp(ext, ".html") == 0)
+        return "text/html";
+    if (strcmp(ext, ".css") == 0)
+        return "text/css";
+    if (strcmp(ext, ".js") == 0)
+        return "application/javascript";
+    if (strcmp(ext, ".jpg") == 0)
+        return "image/jpeg";
+    if (strcmp(ext, ".jpeg") == 0)
+        return "image/jpeg";
+    if (strcmp(ext, ".png") == 0)
+        return "image/png";
+    if (strcmp(ext, ".mp4") == 0)
+        return "video/mp4";
+    if (strcmp(ext, ".mp3") == 0)
+        return "audio/mp3";
+    if (strcmp(ext, ".pdf") == 0)
+        return "application/pdf";
+    if (strcmp(ext, ".ico") == 0)
+        return "image/x-icon";
 
     return "application/octet-stream";
 }
